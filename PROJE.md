@@ -10,6 +10,14 @@ cd ~/Documents/Maarif && python3 -m http.server 8765
 ```
 Tarayıcıda http://localhost:8765 — ES modülleri `file://` ile açılmaz, sunucu şart.
 
+## Yayın
+
+- Canlı: https://mustafa85yks-arch.github.io/maarif/
+- Depo (açık): https://github.com/mustafa85yks-arch/maarif — GitHub Pages, `main` dalının kökünden
+- Güncellemek için: değişikliği commit'le, `git push` — Pages 1 dakika içinde yeniler
+- Commit kimliği depoya özel: GitHub noreply adresi (kişisel e-posta görünmez)
+- Varsayılan semt nötr (Fatih); kişisel ayarlar sadece telefonda, depoda yok
+
 ## Aşamalar
 
 | | Durum |
