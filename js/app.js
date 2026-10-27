@@ -18,6 +18,7 @@ import { vakitler, siradakiVakit, diyanetBolgesi } from './mantik/namaz.js';
 import { ramazanDurumu } from './mantik/ramazan.js';
 import { gunOzeti, gununHavasi, burcSatiri, gununSozu, yemekOnerisi } from './mantik/yaprak.js';
 import { tarihteOku, tarihteGetir, vikipediBaglantisi } from './veri/tarihte.js';
+import { pwaBaslat, kurulumIpucu, kurulumDugmesiBagla } from './pwa.js';
 
 const kok = document.getElementById('yaprak');
 const yuvarla = x => (x == null ? '–' : Math.round(x));
@@ -125,11 +126,13 @@ function ciz() {
       · ECMWF, ICON, GFS ortancası · Open-Meteo<br>
       <button class="dugme" id="yenile">Yenile</button>
       <button class="dugme" id="ayarlar">Ayarlar</button>
+      ${kurulumIpucu()}
     </footer>`;
 
   kok.querySelectorAll('details').forEach(d => { if (acik.has(d.dataset.id)) d.open = true; });
   kok.querySelector('#yenile').onclick = () => yukle(true);
   kok.querySelector('#ayarlar').onclick = ayarlariAc;
+  kurulumDugmesiBagla(kok);
   kok.querySelectorAll('[data-semt]').forEach(d => {
     d.onclick = () => { aktif = +d.dataset.semt; ciz(); window.scrollTo(0, 0); };
   });
@@ -334,4 +337,5 @@ function tazele() {
 setInterval(tazele, 60 * 1000);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') tazele(); });
 
+pwaBaslat(() => { if (sonVeri && !kurulumda) ciz(); });
 if (ayarlariOku().kurulum) yukle(); else ayarlariAc();

@@ -408,3 +408,6 @@ tr.simdiki td { background: var(--masa); }
 .yaprak-satir li { margin-bottom: 6px; }
 .soz { font-size: 20px; font-weight: 600; line-height: 1.3; }
 .yaprak-satir a { color: inherit; }
+
+/* Ana ekrana ekleme ipucu */
+.ipucu { margin: 12px 0 0; font-size: 13px; color: var(--soluk); }

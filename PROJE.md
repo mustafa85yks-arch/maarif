@@ -27,7 +27,7 @@ Tarayıcıda http://localhost:8765 — ES modülleri `file://` ile açılmaz, su
 | 3. Namaz / Ramazan / özel günler (Diyanet karşılaştırması) | ✅ 27 Eki 2026 |
 | 4. Yaprağın arkası: günün havası, söz, burç, sofra, tarihte bugün | ✅ 27 Eki 2026 |
 | 5. GitHub + Pages yayını | ✅ 27 Eki 2026 |
-| 6. PWA (ana ekrana ekleme, çevrimdışı) | bekliyor |
+| 6. PWA (ana ekrana ekleme, çevrimdışı) | ✅ 27 Eki 2026 |
 
 ## Yapı
 
@@ -42,6 +42,8 @@ Tarayıcıda http://localhost:8765 — ES modülleri `file://` ile açılmaz, su
 - `js/dil.js` — ilçe adlarına hal ekleri (Esenyurt'ta, Bayrampaşa'dan)
 - `lib/suncalc.js` — suncalc@1.9.0 (unpkg), ay evresi ve doğuş/batışı
 - `lib/adhan.umd.min.js` — adhan@4.4.3 (unpkg), namaz vakti hesabı
+- `manifest.webmanifest`, `icons/` (Pillow + DIN Condensed ile üretildi; maskelemeye uygun), `js/pwa.js` (kayıt + "ana ekrana ekle" ipucu: Android'de düğme, iPhone'da Paylaş tarifi)
+- `sw.js` — service worker: kendi dosyalar önce ağ (3 sn zaman aşımı), yoksa önbellek; yazı tipleri önce önbellek; API'lere dokunmaz. **Yeni dosya eklenince DOSYALAR listesine yaz ve SURUM'u artır**, yoksa kurulum o dosyayı önbelleğe almaz (listedeki tek eksik dosya kurulumu tamamen bozar)
 - `js/mantik/namaz.js` — adhan Türkiye yöntemi + yılın gününe göre mevsimsel düzeltme eğrisi (KATSAYI). Diyanet'in ayrı vakit verdiği 18 ilçe kendi koordinatıyla, diğer semtler "İstanbul" (41.019, 28.949) ile hesaplanır
 - `js/mantik/ramazan.js` — en üstteki imsak/iftar geri sayımı + iftar saatindeki hava
 - `js/veri/takvim.js` — Diyanet dini günleri (2027 sonuna kadar), resmi tatiller (her yıl), Hicri tarih (Diyanet ay başları + Ümmülkurâ yedek), Rumi tarih
@@ -68,3 +70,10 @@ Tarayıcıda http://localhost:8765 — ES modülleri `file://` ile açılmaz, su
 - Düzeltme eğrisi 2025 ile kuruldu, 2026'da denendi; uygulamanın kendi kodu 730 günün hiçbirinde 2 dk sapmadı. Birebir oran: merkez %87–98, Esenyurt/Silivri/Şile %66–97 (vakte göre); geri kalan günler 1 dk.
 - Her yıl: Diyanet yeni yılın dini günler takvimini yayımlayınca `takvim.js` → DINI, RAMAZAN, AY_BASLARI güncellenmeli. 2027 Ekim'den sonra ekranda hatırlatma çıkar.
 - Dini gün tarihleri Diyanet'in resmi sayfasından değil, ona atıf yapan haberlerden (Evrensel, Milli Gazete, sorularlaislamiyet) — üç kaynak birbirini tuttu. Diyanet'in kendi formu oturum istediği için doğrudan çekilemedi.
+
+## PWA testi (27 Eki 2026)
+
+- Uygulama içindeki tarayıcı paneli (Electron) service worker kaydetmiyor; test ekransız gerçek Chrome + CDP ile yapıldı.
+- Sonuç: SW kontrol ediyor, 34 dosya + 5 yazı tipi önbellekte, Chrome yüklenebilirlik hatası yok.
+- Çevrimdışı: site sunucusu kapalı + sayfa interneti kesik + hava önbelleği bayat → uygulama açıldı, son veri ve "Bağlantı yok" uyarısı, namaz ve yazı tipleri yerinde.
+- iPhone'da denenmedi (Safari "Ana Ekrana Ekle").
