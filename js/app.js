@@ -18,6 +18,7 @@ import { vakitler, siradakiVakit, diyanetBolgesi } from './mantik/namaz.js';
 import { ramazanDurumu } from './mantik/ramazan.js';
 import { gunOzeti, gununHavasi, burcSatiri, gununSozu, gununFikrasi, yemekOnerisi } from './mantik/yaprak.js';
 import { tarihteOku, tarihteGetir, vikipediBaglantisi } from './veri/tarihte.js';
+import { siraliDogumGunleri, dogumGunleriOku, dogumGunleriYaz, AYLAR, AYIN_GUNU } from './veri/dogumgunu.js';
 import { pwaBaslat, kurulumIpucu, kurulumDugmesiBagla } from './pwa.js';
 
 const kok = document.getElementById('yaprak');
@@ -28,6 +29,7 @@ const kacir = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt
 let sonVeri = null;
 let kurulumda = false;
 let aktif = 0; // ana ekranda büyük gösterilen semt (oturumluk)
+let dgForm = null; // açık doğum günü formu: null kapalı, {} yeni, {id,…} düzeltme; yazılanlar burada tutulur
 
 function ayarlariAc() {
   kurulumda = true;
@@ -90,6 +92,7 @@ function ciz() {
     <h1 class="ust">${ust}</h1>
     ${takvimAcik ? `<p class="takvim-alt">${bolme(hicriTarih(gun))} <span>·</span> ${bolme(`Rumi ${rumiTarih(gun)}`)}</p>` : ''}
     ${ramazanHtml(ramazan, k)}
+    ${dogumBugunHtml(gun)}
     <section class="bas">
       <div class="blok">
         <div class="dev${kirmiziGun ? ' kirmizi' : ''}">${tarihYaz({ day: 'numeric' })}</div>
@@ -118,6 +121,7 @@ function ciz() {
     ${kaliteBolum(k, idx)}
     ${gokBolum(k, simdi)}
     ${takvimBolum(gun, takvimAcik)}
+    ${dogumBolum(gun)}
     ${takvimAcik ? namazBolum(k, simdi) : ''}
     ${takvimAcik ? yaprakBolum(gunO, gun, ayar, tarihte) : ''}
     <footer class="dip">
@@ -136,6 +140,86 @@ function ciz() {
   kok.querySelectorAll('[data-semt]').forEach(d => {
     d.onclick = () => { aktif = +d.dataset.semt; ciz(); window.scrollTo(0, 0); };
   });
+  dogumBagla();
+}
+
+// ---- Doğum günleri ----
+const kalanYaz = n => (n === 0 ? 'bugün' : n === 1 ? 'yarın' : `${n} gün`);
+
+function dogumBugunHtml(gun) {
+  const bugun = siraliDogumGunleri(gun).filter(d => d.kalan === 0);
+  if (!bugun.length) return '';
+  return `<div class="dogum-bugun">Bugün doğum günü: ${bugun.map(d => `<b>${kacir(d.ad)}</b>${d.yas ? ` (${d.yas} yaşında)` : ''}`).join(', ')}</div>`;
+}
+
+function dogumBolum(gun) {
+  const liste = siraliDogumGunleri(gun);
+  const ilk = liste[0];
+  const satirlar = liste.map(d => {
+    const yas = d.yas ? ` · ${d.yas} yaşına ${d.kalan === 0 ? 'girdi' : 'giriyor'}` : '';
+    return `<tr><td><button type="button" class="dg-ad" data-dg-duzenle="${d.id}">${kacir(d.ad)}</button><br><small>${d.gun} ${AYLAR[d.ay - 1]}${yas}</small></td>
+      <td class="sag">${kalanYaz(d.kalan)}</td>
+      <td class="sag dg-sil"><button type="button" data-dg-sil="${d.id}" aria-label="${kacir(d.ad)} sil">✕</button></td></tr>`;
+  }).join('');
+  const f = dgForm;
+  const secenek = (deger, yazi, secili) => `<option value="${deger}"${secili ? ' selected' : ''}>${yazi}</option>`;
+  const form = f ? `<form id="dg-form" class="dg-form">
+      <label class="alan">İsim<input name="ad" maxlength="40" autocomplete="off" value="${kacir(f.ad ?? '')}"></label>
+      <div class="dg-tarih">
+        <label class="alan">Gün<select name="gun">${Array.from({ length: 31 }, (_, i) => secenek(i + 1, i + 1, (f.gun ?? 1) === i + 1)).join('')}</select></label>
+        <label class="alan">Ay<select name="ay">${AYLAR.map((a, i) => secenek(i + 1, a, (f.ay ?? 1) === i + 1)).join('')}</select></label>
+        <label class="alan">Doğum yılı<input name="yil" type="number" inputmode="numeric" min="1900" max="${gun.slice(0, 4)}" placeholder="isteğe bağlı" value="${f.yil ?? ''}"></label>
+      </div>
+      <p class="hata-kucuk" id="dg-hata"></p>
+      <div class="adim-dugmeler"><button type="button" class="dugme" data-dg-iptal>İptal</button><button type="submit" class="dugme dolu">Kaydet</button></div>
+    </form>` : '<p><button type="button" class="dugme" data-dg-ekle>+ Doğum günü ekle</button></p>';
+  return bolum('dogum', 'Doğum günleri', ilk ? `${kacir(ilk.ad)} · ${kalanYaz(ilk.kalan)}` : 'ekle', `
+    ${liste.length ? `<table class="dg-liste"><tbody>${satirlar}</tbody></table>` : (f ? '' : '<p class="not">Henüz doğum günü eklenmedi.</p>')}
+    ${form}
+    <p class="not">Sadece bu telefonda saklanır. Değiştirmek için isme dokun.</p>`);
+}
+
+function dogumBagla() {
+  const ac = d => { dgForm = d; ciz(); kok.querySelector('#dg-form [name=ad]')?.focus(); };
+  kok.querySelector('[data-dg-ekle]')?.addEventListener('click', () => ac({}));
+  kok.querySelectorAll('[data-dg-duzenle]').forEach(b => {
+    b.onclick = () => ac({ ...dogumGunleriOku().find(d => d.id === b.dataset.dgDuzenle) });
+  });
+  kok.querySelectorAll('[data-dg-sil]').forEach(b => {
+    b.onclick = () => {
+      const l = dogumGunleriOku(), d = l.find(x => x.id === b.dataset.dgSil);
+      if (!d || !confirm(`${d.ad} listeden silinsin mi?`)) return;
+      dogumGunleriYaz(l.filter(x => x !== d));
+      if (dgForm?.id === d.id) dgForm = null;
+      ciz();
+    };
+  });
+  const form = kok.querySelector('#dg-form');
+  if (!form) return;
+  kok.querySelector('details[data-id=dogum]').open = true;
+  // Yazılanlar dgForm'da dursun: dakikalık yeniden çizim formu silmesin
+  const oku = () => {
+    const v = new FormData(form);
+    dgForm = { ...dgForm, ad: v.get('ad'), gun: +v.get('gun'), ay: +v.get('ay'), yil: v.get('yil') ? +v.get('yil') : null };
+  };
+  form.addEventListener('input', oku);
+  form.querySelector('[data-dg-iptal]').onclick = () => { dgForm = null; ciz(); };
+  form.onsubmit = e => {
+    e.preventDefault();
+    oku();
+    const { id, gun, ay, yil } = dgForm, ad = (dgForm.ad || '').trim();
+    const yilSiniri = new Date().getFullYear();
+    const hata = !ad ? 'İsim yaz.'
+      : gun > AYIN_GUNU[ay - 1] ? `${AYLAR[ay - 1]} ${AYIN_GUNU[ay - 1]} gün çeker.`
+      : yil && (yil < 1900 || yil > yilSiniri) ? 'Doğum yılı 1900 ile bu yıl arasında olmalı.'
+      : yil && ay === 2 && gun === 29 && !((yil % 4 === 0 && yil % 100 !== 0) || yil % 400 === 0) ? `${yil} yılında 29 Şubat yok.` : '';
+    if (hata) { form.querySelector('#dg-hata').textContent = hata; return; }
+    const kayit = { id: id || Date.now().toString(36), ad, gun, ay, ...(yil ? { yil } : {}) };
+    const l = dogumGunleriOku().filter(d => d.id !== kayit.id);
+    dogumGunleriYaz([...l, kayit]);
+    dgForm = null;
+    ciz();
+  };
 }
 
 function ramazanHtml(r, k) {
@@ -180,7 +264,10 @@ function namazBolum(k, simdi) {
 function takvimBolum(gun, takvimAcik) {
   const tarih = g => new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'long', weekday: 'long', timeZone: 'UTC' }).format(new Date(`${g}T12:00Z`));
   const kalanGun = g => Math.round((Date.parse(`${g}T12:00Z`) - Date.parse(`${gun}T12:00Z`)) / 864e5);
-  const liste = yaklasanlar(gun, 6).filter(o => takvimAcik || ['resmi', 'bayram', 'arefe'].includes(o.tur)).slice(0, 4);
+  const dogum = siraliDogumGunleri(gun).filter(d => d.kalan >= 1 && d.kalan <= 7)
+    .map(d => ({ gun: d.tarih, ad: `${kacir(d.ad)} doğum günü`, tur: 'dogum' }));
+  const liste = [...yaklasanlar(gun, 6).filter(o => takvimAcik || ['resmi', 'bayram', 'arefe'].includes(o.tur)).slice(0, 4), ...dogum]
+    .sort((a, b) => a.gun.localeCompare(b.gun));
   if (!liste.length) return '';
   const ilk = liste[0];
   const satirlar = liste.map(o => {
@@ -335,7 +422,7 @@ function gokBolum(k, simdi) {
 
 // Dakikada bir geri sayımları güncelle; veri eskidiyse yeniden çek
 function tazele() {
-  if (!sonVeri || kurulumda) return;
+  if (!sonVeri || kurulumda || dgForm) return;
   if (Date.now() - sonVeri.zaman > TAZELIK) yukle(); else ciz();
 }
 setInterval(tazele, 60 * 1000);

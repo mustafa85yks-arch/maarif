@@ -29,6 +29,7 @@ Tarayıcıda http://localhost:8765 — ES modülleri `file://` ile açılmaz, su
 | 5. GitHub + Pages yayını | ✅ 27 Eki 2026 |
 | 6. PWA (ana ekrana ekleme, çevrimdışı) | ✅ 27 Eki 2026 |
 | 7. Günün fıkrası (yaprağın arkası) | ✅ 28 Eki 2026 |
+| 8. Doğum günleri listesi | ✅ 28 Eki 2026 |
 
 ## Yapı
 
@@ -51,6 +52,7 @@ Tarayıcıda http://localhost:8765 — ES modülleri `file://` ile açılmaz, su
 - `js/veri/yaprak_metin.js` — günün havası, burç (4 element × 4 gün tipi), atasözleri, yemek metinleri. Burç/hava/yemek cümleleri özgün; atasözleri halk malı
 - `js/mantik/yaprak.js` — bugünün 07–21 özetine göre seçim; seçimler tarih tohumuyla sabit (gün içinde değişmez)
 - `js/veri/fikralar.js` — 88 fıkra (Hoca 42, Temel 37, Bektaşi 9), halk fıkraları yeniden anlatıldı. `yaprak.js` → `gununFikrasi`: gün no × listeyle aralarında asal adım, liste bitmeden tekrar yok. Fıkra eklemek için listeye yeni satır yeterli; `sw.js` SURUM'u artır
+- `js/veri/dogumgunu.js` — doğum günleri, yalnız localStorage (`maarif_dogumgunleri_v1`; tüm verileri sil bunu da siler). `{id, ad, gun, ay, yil?}`; 29 Şubat artık olmayan yılda 28'inde. Ekran: "Doğum günleri" bölümü (+ ekle, isme dokun = düzelt, ✕ = sil), bugünse tarihin altında şerit, 7 gün içindekiler "Yaklaşan günler"e de girer. Form açıkken dakikalık yeniden çizim durur (`dgForm`)
 - `js/veri/tarihte.js` — Türkçe Vikipedi onthisday (api.wikimedia.org, CORS açık). 28 Eki'den beri önce editörlerin seçtiği 5 olay (`selected`, ana sayfadaki kutu) kullanılıyor, en çok 3 gösteriliyor (Türkiye/Atatürk üstte); uygun olay kalmazsa `events` havuzuna düşer. Sayfa görüntülenmesiyle sıralama denendi, genel sayfalar (Türkiye vb.) öne çıktığı için bırakıldı. KARANLIK süzgeci (ölüm, savaş, kaza, siyaset…) + OLUMLU öncelik (açıldı, kuruldu, ilk…); 1 Türkiye + 1 dünya olayı; günde bir çekilir. Metin innerHTML öncesi kaçırılır; CC BY-SA bağlantısı var
 - Ayarlarda "Takvim yaprağı" aç/kapa (yaprağın arkası da buna bağlı): kapalıyken namaz, Hicri/Rumi, kandil ve Ramazan gizlenir; resmi tatil/bayram kalır
 

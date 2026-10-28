@@ -348,6 +348,7 @@ legend { padding: 0; margin-bottom: 2px; font-family: var(--rakam); font-size: 1
 .adim-dugmeler { display: flex; justify-content: space-between; margin-top: 22px; }
 .dugme.dolu { background: var(--murekkep); color: var(--kagit); }
 .baglanti { padding: 0; border: 0; background: none; color: var(--kirmizi); font: 14px var(--yazi); text-decoration: underline; cursor: pointer; }
+.dg-form + .not { margin-top: 10px; }
 .hata-kucuk { color: var(--kirmizi); font-weight: 600; }
 .saglik details.diger { border: 0; }
 .saglik details.diger summary { padding: 2px 0 6px; font-size: 13px; }
@@ -412,3 +413,14 @@ tr.simdiki td { background: var(--masa); }
 
 /* Ana ekrana ekleme ipucu */
 .ipucu { margin: 12px 0 0; font-size: 13px; color: var(--soluk); }
+
+/* Doğum günleri */
+.dogum-bugun { margin: 0 0 12px; padding: 8px 12px; border: 1px solid var(--murekkep); font-size: 17px; text-align: center; }
+.dg-liste td { vertical-align: top; }
+.dg-ad { all: unset; cursor: pointer; font-weight: 600; text-decoration: underline dotted; text-underline-offset: 3px; }
+.dg-sil { width: 32px; }
+.dg-sil button { all: unset; cursor: pointer; padding: 2px 6px; color: var(--soluk); }
+.dg-form { margin: 12px 0 4px; }
+.dg-tarih { display: grid; grid-template-columns: 1fr 1.6fr 1.6fr; gap: 10px; }
+.dg-form + .not { margin-top: 10px; }
+.hata-kucuk { margin: 0 0 8px; color: var(--kirmizi, #a33); font-size: 15px; min-height: 1em; }
