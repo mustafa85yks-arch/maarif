@@ -38,7 +38,7 @@ Tarayıcıda http://localhost:8765 — ES modülleri `file://` ile açılmaz, su
 - `js/kurulum.js` — 4 adım: semtler (ekle/sırala/çıkar) · yaş · hassasiyet · takvim yaprağı + burç (ulaşım adımı 28 Eki'de kaldırıldı). Ayarlar düğmesiyle tekrar açılır, "tüm verileri sil" var
 - Ana ekran: listedeki ilk semt büyük; "Semtlerin" listesinde her semt tek satır, dokununca o semt büyük görünür (oturumluk)
 - `js/mantik/kiyafet.js` — gündüz penceresi (20:00 sonrası yarın 07–21, yoksa bugünün kalanı), tüm semtlerin en soğuk hissedileni + herkese sabit −2° bekleme payı → katman; şemsiye/bot/rüzgarlık/gözlük; katmanlı giyin; semtler arası fark. Semt listesi aynı pencereyi kullanır
-- `js/mantik/saglik.js` — hassasiyete göre notlar (65+ için sıcak/soğuk eşiği daha düşük); ekranda ilk 4, kalanı açılır
+- `js/mantik/saglik.js` — hassasiyete göre notlar (65+ için sıcak/soğuk eşiği daha düşük) + altına herkes için havaya bağlı en çok 2 genel not (buz, sıcak, soğuk, kirlilik, dünden fark, lodos/basınç, nemli serin, polen, UV, kuru, kısa kapalı gün; kişisel notla aynı konu tekrarlanmaz). Hiç not yoksa "Bugün hava sağlık açısından rahat." Ekranda ilk 4, kalanı açılır
 - `js/mantik/kalite.js` — EAQI bantları, polen, UV etiketi
 - `js/dil.js` — ilçe adlarına hal ekleri (Esenyurt'ta, Bayrampaşa'dan)
 - `lib/suncalc.js` — suncalc@1.9.0 (unpkg), ay evresi ve doğuş/batışı

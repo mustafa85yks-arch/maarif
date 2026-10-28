@@ -1,4 +1,4 @@
-// Seçilen hassasiyetlere göre kısa notlar. Genel bilgilendirmedir, tıbbi tavsiye değildir.
+// Seçilen hassasiyetlere göre kısa notlar, altına herkes için havaya bağlı en çok 2 genel not. Genel bilgilendirmedir, tıbbi tavsiye değildir.
 import { lodosMu } from './ruzgar.js';
 import { POLEN_AD, polenSeviye } from './kalite.js';
 import { dakika, tarihOf, sureYaz } from '../zaman.js';
@@ -19,7 +19,7 @@ export function saglikNotlari({ saatler, idx, gunler, ayar }) {
   const ileri = saatler.slice(idx, idx + 12);
   const dun = idx >= 24 ? saatler.slice(idx - 24, idx - 12) : null;
   const notlar = [];
-  const ekle = (oncelik, metin) => notlar.push({ oncelik, metin });
+  const ekle = (oncelik, metin, konu) => notlar.push({ oncelik, metin, konu });
 
   const hisAz = enAz(ileri, 'hissedilen'), hisCok = enCok(ileri, 'hissedilen');
   const sogukEsik = yasli ? 7 : 4, sicakEsik = yasli ? 30 : 33;
@@ -31,34 +31,34 @@ export function saglikNotlari({ saatler, idx, gunler, ayar }) {
     // Zirve saati: bölümde gösterilen "şu an" değeriyle karışmasın
     const zirve = ileri.reduce((a, b) => ((b.pm25 ?? 0) > (a.pm25 ?? 0) ? b : a));
     const deger = `${zirve.t.slice(11, 16)} civarı PM2.5 ${r(pm25)}, PM10 ${r(pm10)} µg/m³`;
-    if (var_('astim', 'koah')) ekle(1, `Partikül kirliliği yüksek (${deger}): dışarıda uzun efordan kaçın, ilacını yanında taşı.`);
-    else if (solunum || var_('kalp', 'cocuk', 'hamile') || yasli) ekle(2, `Partikül kirliliği yüksek (${deger}): uzun süre dışarıda kalma.`);
+    if (var_('astim', 'koah')) ekle(1, `Partikül kirliliği yüksek (${deger}): dışarıda uzun efordan kaçın, ilacını yanında taşı.`, 'kirlilik');
+    else if (solunum || var_('kalp', 'cocuk', 'hamile') || yasli) ekle(2, `Partikül kirliliği yüksek (${deger}): uzun süre dışarıda kalma.`, 'kirlilik');
   }
-  if (aqi > 80) ekle(1, 'Hava kalitesi çok kötü; herkes için dışarıda ağır efor önerilmez.');
-  if (ozon >= 120 && var_('astim', 'koah')) ekle(2, `Ozon ${r(ozon)} µg/m³'e çıkıyor; dış efor sabah saatlerinde daha uygun.`);
-  if (toz >= 100) ekle(1, `Çöl tozu yoğun (${r(toz)} µg/m³): pencereleri kapalı tut, dışarıda maske işe yarar.`);
-  else if (toz >= 50 && (solunum || var_('goz', 'kalp'))) ekle(2, `Havada çöl tozu var (${r(toz)} µg/m³); dışarıda maske takabilirsin.`);
+  if (aqi > 80) ekle(1, 'Hava kalitesi çok kötü; herkes için dışarıda ağır efor önerilmez.', 'kirlilik');
+  if (ozon >= 120 && var_('astim', 'koah')) ekle(2, `Ozon ${r(ozon)} µg/m³'e çıkıyor; dış efor sabah saatlerinde daha uygun.`, 'kirlilik');
+  if (toz >= 100) ekle(1, `Çöl tozu yoğun (${r(toz)} µg/m³): pencereleri kapalı tut, dışarıda maske işe yarar.`, 'toz');
+  else if (toz >= 50 && (solunum || var_('goz', 'kalp'))) ekle(2, `Havada çöl tozu var (${r(toz)} µg/m³); dışarıda maske takabilirsin.`, 'toz');
 
   // Polen
   const polenler = Object.entries(POLEN_AD)
     .map(([k, ad]) => ({ ad, seviye: polenSeviye(Math.max(...ileri.map(x => x.polen?.[k] ?? 0))) }))
     .filter(p => p.seviye === 'orta' || p.seviye === 'yüksek');
   if (polenler.length && var_('rinit', 'astim', 'goz')) {
-    ekle(1, `${polenler.map(p => `${p.ad} poleni ${p.seviye}`).join(', ')}: dışarıdan gelince yüzünü yıka, pencereyi öğlen açma.`);
+    ekle(1, `${polenler.map(p => `${p.ad} poleni ${p.seviye}`).join(', ')}: dışarıdan gelince yüzünü yıka, pencereyi öğlen açma.`, 'polen');
   }
 
   // Soğuk
   if (hisAz <= sogukEsik) {
-    if (var_('astim', 'koah')) ekle(2, 'Soğuk hava bronşları daraltabilir; atkıyla ağzını ve burnunu ört.');
-    if (h.has('kalp')) ekle(2, 'Soğukta damarlar büzülür, tansiyon yükselebilir; sabah erken ağır efordan kaçın.');
-    if (yasli && !h.has('kalp')) ekle(3, 'Soğuk günde sıkı giyin; dışarıda uzun beklemekten kaçın.');
-    if (h.has('cocuk')) ekle(3, 'Çocukları kat kat giydir; baş, el ve ayaklar sıcak kalsın.');
+    if (var_('astim', 'koah')) ekle(2, 'Soğuk hava bronşları daraltabilir; atkıyla ağzını ve burnunu ört.', 'soguk');
+    if (h.has('kalp')) ekle(2, 'Soğukta damarlar büzülür, tansiyon yükselebilir; sabah erken ağır efordan kaçın.', 'soguk');
+    if (yasli && !h.has('kalp')) ekle(3, 'Soğuk günde sıkı giyin; dışarıda uzun beklemekten kaçın.', 'soguk');
+    if (h.has('cocuk')) ekle(3, 'Çocukları kat kat giydir; baş, el ve ayaklar sıcak kalsın.', 'soguk');
   }
-  if (h.has('dolasim') && hisAz <= 10) ekle(2, 'Soğuk el ve ayakları etkiler; eldiven ve kalın çorap al.');
+  if (h.has('dolasim') && hisAz <= 10) ekle(2, 'Soğuk el ve ayakları etkiler; eldiven ve kalın çorap al.', 'soguk');
 
   // Sıcak
   if (hisCok >= sicakEsik && (var_('kalp', 'hamile', 'cocuk', 'migren') || yasli)) {
-    ekle(1, `Hissedilen ${r(hisCok)}°'ye çıkıyor; öğle saatlerinde gölgede kal, sık sık su iç.`);
+    ekle(1, `Hissedilen ${r(hisCok)}°'ye çıkıyor; öğle saatlerinde gölgede kal, sık sık su iç.`, 'sicak');
   }
 
   // Nem
@@ -69,18 +69,18 @@ export function saglikNotlari({ saatler, idx, gunler, ayar }) {
     if (var_('sinuzit', 'farenjit', 'rinit')) { yerler.push('geniz ve boğaz'); oneriler.push('bol su iç'); }
     if (h.has('cilt')) { yerler.push('cilt'); oneriler.push('nemlendirici sür'); }
     if (h.has('goz')) { yerler.push('gözler'); }
-    if (yerler.length) ekle(3, `Hava kuru (nem %${r(nemAz)}): ${yerler.join(', ')} kuruyabilir${oneriler.length ? `; ${oneriler.join(', ')}` : ''}.`);
+    if (yerler.length) ekle(3, `Hava kuru (nem %${r(nemAz)}): ${yerler.join(', ')} kuruyabilir${oneriler.length ? `; ${oneriler.join(', ')}` : ''}.`, 'kuru');
   }
   if (simdi.sicaklik <= 12 && simdi.nem >= 85) {
-    if (h.has('eklem')) ekle(2, 'Nemli soğuk eklemleri sızlatabilir; dizlerini ve belini sıcak tut.');
-    if (h.has('sinuzit')) ekle(3, 'Nemli soğuk geniz akıntısını artırabilir.');
+    if (h.has('eklem')) ekle(2, 'Nemli soğuk eklemleri sızlatabilir; dizlerini ve belini sıcak tut.', 'nemliSerin');
+    if (h.has('sinuzit')) ekle(3, 'Nemli soğuk geniz akıntısını artırabilir.', 'nemliSerin');
   }
 
   // Ani değişim (dünün aynı saatleriyle)
   if (dun) {
     const fark = r(ort(ileri, 'hissedilen') - ort(dun, 'hissedilen'));
     if (Math.abs(fark) >= 7 && var_('sinuzit', 'farenjit', 'astim', 'kalp', 'migren')) {
-      ekle(2, `Dünden ${Math.abs(fark)}° daha ${fark < 0 ? 'soğuk' : 'sıcak'}; ani değişim vücudu zorlayabilir.`);
+      ekle(2, `Dünden ${Math.abs(fark)}° daha ${fark < 0 ? 'soğuk' : 'sıcak'}; ani değişim vücudu zorlayabilir.`, 'degisim');
     }
   }
   const basincGecmis = idx >= 24 ? saatler[idx].basinc - saatler[idx - 24].basinc : 0;
@@ -88,18 +88,18 @@ export function saglikNotlari({ saatler, idx, gunler, ayar }) {
   const basinc = Math.abs(basincIleri) > Math.abs(basincGecmis) ? basincIleri : basincGecmis;
   if (Math.abs(basinc) >= 6) {
     const yon = basinc < 0 ? 'düşüyor' : 'yükseliyor';
-    if (h.has('migren')) ekle(1, `Hava basıncı hızla ${yon} (${Math.abs(r(basinc))} hPa); baş ağrısı tetiklenebilir.`);
-    if (h.has('eklem') && basinc < 0) ekle(2, 'Basınç düşüşü eklem ağrısı yapabilir.');
+    if (h.has('migren')) ekle(1, `Hava basıncı hızla ${yon} (${Math.abs(r(basinc))} hPa); baş ağrısı tetiklenebilir.`, 'basinc');
+    if (h.has('eklem') && basinc < 0) ekle(2, 'Basınç düşüşü eklem ağrısı yapabilir.', 'basinc');
   }
 
   // Rüzgar
-  if (h.has('migren') && ileri.some(s => lodosMu(s) && s.ruzgar >= 20)) ekle(2, 'Lodos esiyor; baş ağrısına yatkınsan bol su iç, ekran molası ver.');
-  if (h.has('goz') && enCok(ileri, 'ruzgar') >= 30) ekle(3, 'Sert rüzgar gözü kurutur; gözlük takabilirsin.');
+  if (h.has('migren') && ileri.some(s => lodosMu(s) && s.ruzgar >= 20)) ekle(2, 'Lodos esiyor; baş ağrısına yatkınsan bol su iç, ekran molası ver.', 'basinc');
+  if (h.has('goz') && enCok(ileri, 'ruzgar') >= 30) ekle(3, 'Sert rüzgar gözü kurutur; gözlük takabilirsin.', 'goz');
 
   // UV
   const uv = enCok(ileri, 'uv');
-  if (uv >= 8) ekle(1, `UV ${r(uv)} (çok yüksek): 11:00–15:00 arası güneş koruyucu, şapka ve gözlük.`);
-  else if (uv >= 6 && var_('cilt', 'goz', 'cocuk', 'hamile')) ekle(2, `UV ${r(uv)} (yüksek): öğle saatlerinde güneş koruyucu ve şapka.`);
+  if (uv >= 8) ekle(1, `UV ${r(uv)} (çok yüksek): 11:00–15:00 arası güneş koruyucu, şapka ve gözlük.`, 'uv');
+  else if (uv >= 6 && var_('cilt', 'goz', 'cocuk', 'hamile')) ekle(2, `UV ${r(uv)} (yüksek): öğle saatlerinde güneş koruyucu ve şapka.`, 'uv');
 
   // Kısa gün
   const bugun = gunler.find(g => g.gun === tarihOf(simdi.t));
@@ -107,9 +107,40 @@ export function saglikNotlari({ saatler, idx, gunler, ayar }) {
     const uzunluk = dakika(bugun.batis) - dakika(bugun.dogus);
     if (uzunluk < 630) {
       const kapali = ort(ileri, 'bulut') > 80;
-      ekle(3, `Gün ${sureYaz(uzunluk)}; öğlen en az 20 dakika gün ışığına çık.${kapali ? ' Hava kapalı, ışığa daha çok ihtiyacın var.' : ''}`);
+      ekle(3, `Gün ${sureYaz(uzunluk)}; öğlen en az 20 dakika gün ışığına çık.${kapali ? ' Hava kapalı, ışığa daha çok ihtiyacın var.' : ''}`, 'isik');
     }
   }
 
-  return notlar.sort((a, b) => a.oncelik - b.oncelik).map(n => n.metin);
+  // Herkes için havaya bağlı genel notlar: kişisel notların konusu tekrarlanmaz, en çok 2 tane, önem sırasıyla
+  const konular = new Set(notlar.map(n => n.konu));
+  const genel = [];
+  const g = (konu, kosul, metin) => {
+    if (!kosul || konular.has(konu)) return;
+    konular.add(konu);
+    genel.push(typeof metin === 'function' ? metin() : metin);
+  };
+  const degisim = dun ? r(ort(ileri, 'hissedilen') - ort(dun, 'hissedilen')) : 0;
+  const polenGenel = Object.entries(POLEN_AD)
+    .map(([k, ad]) => ({ ad, seviye: polenSeviye(Math.max(...ileri.map(x => x.polen?.[k] ?? 0))) }))
+    .filter(p => p.seviye === 'orta' || p.seviye === 'yüksek');
+  const lodos = ileri.some(s => lodosMu(s) && s.ruzgar >= 20);
+  g('buz', enAz(ileri, 'sicaklik') <= 0 || hisAz <= -2, 'Yerler buz tutabilir; kaymayan ayakkabı giy, soğukta atkıyla ağzını ört.');
+  g('sicak', hisCok >= 30, () => `Hissedilen ${r(hisCok)}°'ye çıkıyor; öğle güneşinden kaçın, gün boyu su iç.`);
+  g('soguk', hisAz <= 4, 'Soğuk sert; dışarıda uzun beklemekten kaçın, el ve kulaklarını ört.');
+  g('kirlilik', aqi >= 40, 'Hava kirliliği orta seviyede; dışarıda uzun koşu ve ağır efor için uygun gün değil.');
+  g('degisim', Math.abs(degisim) >= 5, () => degisim < 0
+    ? `Hava dünden ${-degisim}° daha soğuk; üşütmemek için boğazını ve göğsünü sıcak tut.`
+    : `Hava dünden ${degisim}° daha sıcak; kat kat giyin, terleyip üşüme.`);
+  g('basinc', Math.abs(basinc) >= 6 || lodos, () => `${lodos ? 'Lodos esiyor' : 'Hava basıncı hızla değişiyor'}; baş ağrısına yatkınsan bol su iç, ekran molası ver.`);
+  g('nemliSerin', simdi.sicaklik <= 16 && enCok(ileri, 'nem') >= 85, 'Nemli serin hava: ıslak saçla dışarı çıkma, ayakların kuru kalsın.');
+  g('polen', polenGenel.length, () => `${polenGenel.map(p => `${p.ad} poleni ${p.seviye}`).join(', ')}: alerjin varsa dışarıdan gelince yüzünü yıka.`);
+  g('uv', uv >= 6, 'UV yüksek; öğlen güneş kremi ve şapka.');
+  g('kuru', nemAz < 35, 'Hava kuru; bol su iç, dudakların ve cildin kuruyabilir.');
+  if (bugun && !konular.has('isik')) {
+    const uzunluk = dakika(bugun.batis) - dakika(bugun.dogus);
+    g('isik', uzunluk < 630 && ort(ileri, 'bulut') > 80, 'Kısa ve kapalı gün; öğlen 20 dakika gün ışığına çık.');
+  }
+
+  const sonuc = [...notlar.sort((a, b) => a.oncelik - b.oncelik).map(n => n.metin), ...genel.slice(0, 2)];
+  return sonuc.length ? sonuc : ['Bugün hava sağlık açısından rahat.'];
 }
