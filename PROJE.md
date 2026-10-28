@@ -35,9 +35,9 @@ Tarayıcıda http://localhost:8765 — ES modülleri `file://` ile açılmaz, su
 - `js/veri/hava.js` — Open-Meteo, 3 model × en çok 6 semt tek istek, saat başı ortanca, 30 dk localStorage önbelleği
 - `js/mantik/` — özet, nem, rüzgar (İstanbul rüzgar gülü), uyarılar, model uyumu, güneş/ay
 - `js/ayarlar.js` — ayar şeması (`semtler` listesi, en çok 6; eski ev/iş ayarı otomatik listeye çevrilir), hassasiyet/burç listeleri
-- `js/kurulum.js` — 5 adım: semtler (ekle/sırala/çıkar) · ulaşım · yaş · hassasiyet · burç. Ayarlar düğmesiyle tekrar açılır, "tüm verileri sil" var
+- `js/kurulum.js` — 4 adım: semtler (ekle/sırala/çıkar) · yaş · hassasiyet · takvim yaprağı + burç (ulaşım adımı 28 Eki'de kaldırıldı). Ayarlar düğmesiyle tekrar açılır, "tüm verileri sil" var
 - Ana ekran: listedeki ilk semt büyük; "Semtlerin" listesinde her semt tek satır, dokununca o semt büyük görünür (oturumluk)
-- `js/mantik/kiyafet.js` — gündüz penceresi (20:00 sonrası yarın 07–21, yoksa bugünün kalanı), tüm semtlerin en soğuk hissedileni + ulaşım düzeltmesi (yürüyüş −3, toplu −2, servis −1, araç +4) → katman; şemsiye/bot/rüzgarlık/gözlük; katmanlı giyin; semtler arası fark. Semt listesi aynı pencereyi kullanır
+- `js/mantik/kiyafet.js` — gündüz penceresi (20:00 sonrası yarın 07–21, yoksa bugünün kalanı), tüm semtlerin en soğuk hissedileni + herkese sabit −2° bekleme payı → katman; şemsiye/bot/rüzgarlık/gözlük; katmanlı giyin; semtler arası fark. Semt listesi aynı pencereyi kullanır
 - `js/mantik/saglik.js` — hassasiyete göre notlar (65+ için sıcak/soğuk eşiği daha düşük); ekranda ilk 4, kalanı açılır
 - `js/mantik/kalite.js` — EAQI bantları, polen, UV etiketi
 - `js/dil.js` — ilçe adlarına hal ekleri (Esenyurt'ta, Bayrampaşa'dan)

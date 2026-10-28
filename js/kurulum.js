@@ -1,5 +1,5 @@
 import { ILCELER } from './veri/ilceler.js';
-import { ULASIM, YASLAR, HASSASIYETLER, BURCLAR, EN_COK_SEMT, ayarlariYaz, hepsiniSil } from './ayarlar.js';
+import { YASLAR, HASSASIYETLER, BURCLAR, EN_COK_SEMT, ayarlariYaz, hepsiniSil } from './ayarlar.js';
 
 const GIZLILIK = 'Bu bilgiler yalnızca bu telefonda saklanır, hiçbir yere gönderilmez. '
   + 'Hava verisi sadece ilçe merkezinin koordinatıyla istenir.';
@@ -27,12 +27,6 @@ const ADIMLAR = [
             <select name="yeniSemt">${secenek('', 'Seç…', true)}${ILCELER.filter(i => !t.semtler.includes(i.ad)).map(i => secenek(i.ad, i.ad, false)).join('')}</select></label>`
         : `<p class="not">En çok ${EN_COK_SEMT} semt eklenebilir.</p>`}`,
     gecerli: t => t.semtler.length > 0 || 'En az bir semt ekle.',
-  },
-  {
-    baslik: 'Ulaşım',
-    html: t => `
-      <p class="soru">Gün içinde genelde nasıl dolaşıyorsun? Kıyafet önerisi buna göre ayarlanır.</p>
-      ${ULASIM.map(u => radyo('ulasim', u.id, u.ad, u.not, u.id === t.ulasim)).join('')}`,
   },
   {
     baslik: 'Yaş',
@@ -118,7 +112,7 @@ export function kurulumGoster(kok, ayar, bitince) {
 
   function oku(form) {
     const v = new FormData(form);
-    for (const ad of ['ulasim', 'yas', 'burc']) if (v.has(ad)) taslak[ad] = v.get(ad);
+    for (const ad of ['yas', 'burc']) if (v.has(ad)) taslak[ad] = v.get(ad);
     if (form.querySelector('[name="takvim"]')) taslak.takvim = v.has('takvim');
     // Hassasiyet adımındaysak işaretsiz kutular da "seçilmedi" demektir
     if (form.querySelector('[name="hassas"]')) taslak.hassas = v.getAll('hassas');

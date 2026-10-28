@@ -13,14 +13,8 @@ const KATMAN = [
   [-99, 'kalın mont, atkı, bere, eldiven; altına içlik'],
 ];
 
-// Ulaşım tipine göre "kaç derece daha soğukmuş gibi" giyinmeli: yürüyüş en sıkı, araç en hafif
-const DUZELTME = { yuruyus: -3, toplu: -2, servis: -1, arac: 4 };
-const ULASIM_NOT = {
-  yuruyus: 'Çoğunlukla yürüyorsun; bir kat fazlası iyi olur.',
-  toplu: 'Durak ve aktarmalarda beklemeye göre seçildi.',
-  servis: 'Servis durağında beklemeye göre seçildi.',
-  arac: 'Araçla dolaştığın için daha ince giyinebilirsin.',
-};
+// Durak, iskele, servis beklemesi payı: hissedilenden 2 derece soğukmuş gibi giyin
+const BEKLEME_PAYI = -2;
 
 const r = Math.round;
 const buyukHarf = s => s[0].toLocaleUpperCase('tr-TR') + s.slice(1);
@@ -34,7 +28,7 @@ export function gunduzPenceresi(simdiT) {
   return { gun: yarin ? 'Yarın' : 'Bugün', bas, son: `${gun}T21:00` };
 }
 
-export function kiyafetOnerisi({ konumlar, idx, ayar }) {
+export function kiyafetOnerisi({ konumlar, idx }) {
   const p = gunduzPenceresi(konumlar[0].saatler[idx].t);
   const pencere = k => k.saatler.filter(s => s.t >= p.bas && s.t <= p.son).map(s => ({ ...s, yer: k.ad }));
   const semtSaatleri = konumlar.map(pencere);
@@ -43,7 +37,7 @@ export function kiyafetOnerisi({ konumlar, idx, ayar }) {
 
   const enSoguk = hepsi.reduce((a, b) => (b.hissedilen < a.hissedilen ? b : a));
   const enSicak = hepsi.reduce((a, b) => (b.hissedilen > a.hissedilen ? b : a));
-  const esas = enSoguk.hissedilen + (DUZELTME[ayar.ulasim] ?? 0);
+  const esas = enSoguk.hissedilen + BEKLEME_PAYI;
   const ana = KATMAN.find(([esik]) => esas >= esik)[1];
   const cok = konumlar.length > 1;
   const nerede = s => (cok ? `${bulunma(s.yer)} ` : '');
@@ -64,7 +58,6 @@ export function kiyafetOnerisi({ konumlar, idx, ayar }) {
     detay.push(`Katmanlı giyin: ${hhmm(enSoguk.t)} ${nerede(enSoguk)}hissedilen ${r(enSoguk.hissedilen)}°, `
       + `${hhmm(enSicak.t)} ${nerede(enSicak)}${r(enSicak.hissedilen)}°.`);
   }
-  detay.push(ULASIM_NOT[ayar.ulasim]);
 
   if (cok) {
     // Semtlerin gündüz ortalaması: en soğuk ve en sıcak arasında belirgin fark var mı?

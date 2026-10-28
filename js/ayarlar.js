@@ -4,20 +4,12 @@ const ANAHTAR = 'maarif_ayarlar_v1';
 export const VARSAYILAN = {
   kurulum: false,
   semtler: ['Fatih'], // ilki ana ekranda büyük görünür; kurulumda değiştirilir
-  ulasim: 'toplu',
   yas: '',
   hassas: [],
   burc: '',
   takvim: true, // namaz vakitleri, Hicri/Rumi tarih, dini günler
 };
 export const EN_COK_SEMT = 6;
-
-export const ULASIM = [
-  { id: 'yuruyus', ad: 'Yürüyüş', not: 'Çoğunlukla açık havada' },
-  { id: 'toplu', ad: 'Toplu taşıma', not: 'Durak, aktarma, kısa yürüyüş' },
-  { id: 'servis', ad: 'Servis', not: 'Durakta bekleme' },
-  { id: 'arac', ad: 'Özel araç', not: 'Kapıdan kapıya' },
-];
 
 export const YASLAR = ['18–39', '40–64', '65+'];
 
