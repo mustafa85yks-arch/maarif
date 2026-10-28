@@ -16,7 +16,7 @@ import { kaliteOzeti, bant, uvEtiket } from './mantik/kalite.js';
 import { ozelGunler, yaklasanlar, hicriTarih, rumiTarih, DINI_LISTE_SONU } from './veri/takvim.js';
 import { vakitler, siradakiVakit, diyanetBolgesi } from './mantik/namaz.js';
 import { ramazanDurumu } from './mantik/ramazan.js';
-import { gunOzeti, gununHavasi, burcSatiri, gununSozu, yemekOnerisi } from './mantik/yaprak.js';
+import { gunOzeti, gununHavasi, burcSatiri, gununSozu, gununFikrasi, yemekOnerisi } from './mantik/yaprak.js';
 import { tarihteOku, tarihteGetir, vikipediBaglantisi } from './veri/tarihte.js';
 import { pwaBaslat, kurulumIpucu, kurulumDugmesiBagla } from './pwa.js';
 
@@ -149,6 +149,7 @@ function ramazanHtml(r, k) {
 
 function yaprakBolum(o, gun, ayar, tarihte) {
   const burc = ayar.burc ? burcSatiri(o, gun, ayar.burc) : null;
+  const fikra = gununFikrasi(gun);
   const satir = (baslik, ic) => `<div class="yaprak-satir"><b>${baslik}</b>${ic}</div>`;
   const tarihHtml = tarihte === null
     ? '<p class="not">Vikipedi\'den alınıyor…</p>'
@@ -156,8 +157,9 @@ function yaprakBolum(o, gun, ayar, tarihte) {
       ? `<ul>${tarihte.map(e => `<li><b>${kacir(e.yil)}</b> — ${kacir(e.metin)}</li>`).join('')}</ul>
          <p class="not"><a href="${vikipediBaglantisi(gun)}" target="_blank" rel="noopener">Vikipedi</a>, CC BY-SA</p>`
       : '<p class="not">Bugün için uygun bir kayıt bulunamadı.</p>';
-  return bolum('yaprak', 'Yaprağın arkası', 'söz · sofra · tarih', `
+  return bolum('yaprak', 'Yaprağın arkası', 'söz · fıkra · sofra · tarih', `
     ${satir('Günün sözü', `<p class="soz">${gununSozu(o, gun)}</p>`)}
+    ${satir('Fıkra', `<p class="not">${fikra.tur}</p>${fikra.metin.split('\n').map(p => `<p>${p}</p>`).join('')}`)}
     ${burc ? satir('Burç', `<p class="not">${burc.baslik}</p><p>${burc.metin}</p>`) : ''}
     ${satir('Sofrada', `<p>${yemekOnerisi(o, gun)}</p>`)}
     ${satir('Tarihte bugün', tarihHtml)}

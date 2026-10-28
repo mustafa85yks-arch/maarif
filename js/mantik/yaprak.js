@@ -5,6 +5,7 @@ import { BURCLAR } from '../ayarlar.js';
 import { yagacakMi, karliMi } from './gok.js';
 import { lodosMu, ruzgarAdi } from './ruzgar.js';
 import { ramazandaMi } from './ramazan.js';
+import { FIKRALAR } from '../veri/fikralar.js';
 
 // Tarih + tuz → tekrarlanabilir sayı
 function tohum(gun, tuz) {
@@ -101,4 +102,14 @@ export function yemekOnerisi(o, gun) {
   else if (o.gunesli) grup = Y.guzel;
   else grup = Y.varsayilan;
   return sec(grup, gun, 'yemek').replace('{balik}', balik);
+}
+
+// Günün fıkrası: gün sayısı × listenin boyuyla aralarında asal bir adım → liste bitmeden aynı fıkra dönmez
+export function gununFikrasi(gun) {
+  const n = FIKRALAR.length;
+  const ebob = (a, b) => b ? ebob(b, a % b) : a;
+  let adim = 37;
+  while (ebob(adim, n) !== 1) adim++;
+  const gunNo = Math.round(Date.parse(`${gun}T12:00Z`) / 864e5);
+  return FIKRALAR[(gunNo * adim) % n];
 }
