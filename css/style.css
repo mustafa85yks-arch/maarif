@@ -183,6 +183,7 @@ th {
 }
 td { padding: 6px 4px; border-bottom: 1px dotted var(--cizgi); }
 td small { color: var(--soluk); }
+td small.aciklama { display: block; font-size: 13px; line-height: 1.3; }
 .isaret { width: 24px; text-align: center; font-size: 17px; }
 .gun-ayrac td {
   padding-top: 12px;

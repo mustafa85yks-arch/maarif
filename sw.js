@@ -1,7 +1,7 @@
 // Service worker: uygulama dosyalarını önbelleğe alır, internet yokken uygulama açılsın diye.
 // Hava/hava kalitesi/Vikipedi verisine dokunmaz; onlar localStorage'da saklanır ve bağlantı yoksa son veri gösterilir.
 // Yeni dosya eklenince DOSYALAR listesine yaz ve SURUM'u artır.
-const SURUM = 'maarif-v2';
+const SURUM = 'maarif-v3';
 const DOSYALAR = [
   './',
   './index.html',

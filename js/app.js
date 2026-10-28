@@ -296,21 +296,23 @@ function kaliteBolum(k, idx) {
   const q = kaliteOzeti(k.saatler, idx);
   if (!q) return bolum('kalite', 'Hava kalitesi', 'veri yok', '<p class="not">Hava kalitesi verisi şu an alınamadı.</p>');
   const s = q.simdi;
-  const satir = (ad, deger, birim, etiket) => `<tr><td>${ad}</td><td>${deger}${birim ? ` <small>${birim}</small>` : ''}</td><td class="sag">${etiket}</td></tr>`;
+  const satir = (ad, aciklama, deger, etiket) => `<tr><td>${ad}<small class="aciklama">${aciklama}</small></td><td>${deger}</td><td class="sag">${etiket}</td></tr>`;
   const polen = q.polenler.length
     ? q.polenler.map(p => `${p.ad} ${p.seviye}`).join(', ') + '.'
     : 'Polen yok denecek kadar az.';
   const kotulesme = q.enKotu.aqi >= s.aqi + 10
     ? `<p>${hhmm(q.enKotu.t)} civarı endeks ${q.enKotu.aqi}'e çıkıyor (${bant('pm25', q.enKotu.pm25) === 'iyi' ? 'ozon' : 'partikül'} kaynaklı).</p>` : '';
+  const uvTepe = q.uv.uv;
+  const uvTavsiye = uvTepe == null || uvTepe < 3 ? '' : uvTepe < 6 ? '; öğlen şapka iyi olur' : uvTepe < 8 ? '; güneş kremi sür' : '; öğle güneşinden kaçın';
   return bolum('kalite', 'Hava kalitesi ve polen', `${q.etiket} · ${s.aqi}`, `
     <p><b>Hava ${q.etiket}.</b> Avrupa hava kalitesi endeksi ${s.aqi}.</p>
     ${kotulesme}
     <table><tbody>
-      ${satir('PM2.5', yuvarla(s.pm25), 'µg/m³', bant('pm25', s.pm25))}
-      ${satir('PM10', yuvarla(s.pm10), 'µg/m³', bant('pm10', s.pm10))}
-      ${satir('Ozon', yuvarla(s.ozon), 'µg/m³', bant('ozon', s.ozon))}
-      ${satir('Çöl tozu', yuvarla(s.toz), 'µg/m³', s.toz >= 50 ? 'var' : 'yok')}
-      ${satir('UV', s.uv == null ? '–' : s.uv.toFixed(1), '', `${uvEtiket(s.uv)}; 12 saatte en çok ${q.uv.uv == null ? '–' : q.uv.uv.toFixed(1)}`)}
+      ${satir('PM2.5', 'ince toz ve is, akciğere iner', yuvarla(s.pm25), bant('pm25', s.pm25))}
+      ${satir('PM10', 'iri toz, burun ve boğazı tahriş eder', yuvarla(s.pm10), bant('pm10', s.pm10))}
+      ${satir('Ozon', 'güneşte egzozdan oluşan gaz', yuvarla(s.ozon), bant('ozon', s.ozon))}
+      ${satir('Çöl tozu', "Afrika'dan gelen toz bulutu", yuvarla(s.toz), s.toz >= 50 ? 'var' : 'yok')}
+      ${satir('UV', 'güneşin yakıcılığı; 3 üstü krem', s.uv == null ? '–' : s.uv.toFixed(1), `${uvEtiket(s.uv)} · 12 saat içinde en çok ${uvTepe == null ? '–' : uvTepe.toFixed(1)}${uvTavsiye}`)}
     </tbody></table>
     <p style="margin-top:10px">${polen}</p>
     <p class="not">Kaynak: Copernicus (CAMS) tahmini. İstasyon ölçümü değil; ilçe ortalamasıdır.</p>`);
